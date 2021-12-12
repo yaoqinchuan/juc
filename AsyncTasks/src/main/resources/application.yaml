@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: asyncTask
+server:
+  port: 8081
+
+thirdPart:
+  redis:
+    endPoint: 127.0.0.1:6379
