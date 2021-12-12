@@ -1,6 +1,7 @@
 package com.yqc.asynctasks.exceptions;
 
 public class WrongParamsException extends RuntimeException {
+
     private String errorCode;
 
     private String message;

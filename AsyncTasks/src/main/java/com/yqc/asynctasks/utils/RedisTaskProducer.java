@@ -1,10 +1,13 @@
 package com.yqc.asynctasks.utils;
 
 import com.yqc.asynctasks.constants.Constants;
+import com.yqc.asynctasks.dao.TaskHistoryDao;
+import com.yqc.asynctasks.entity.TaskHistoryDo;
+import com.yqc.asynctasks.enums.TaskStatus;
 import com.yqc.asynctasks.exceptions.WrongParamsException;
-import com.yqc.asynctasks.params.AsyncRedisParams;
-import com.yqc.asynctasks.tasks.AsyncRedisTask;
-import com.yqc.asynctasks.schedule.ScheduleTask;
+import com.yqc.asynctasks.manager.TaskHistoryManager;
+import com.yqc.asynctasks.params.AsyncParams;
+import com.yqc.asynctasks.tasks.AsyncTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +20,15 @@ import java.util.UUID;
 @SuppressWarnings(value = "all")
 public class RedisTaskProducer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleTask.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedisTaskProducer.class);
 
     @Autowired
     private RedissonUtils redissonUtils;
 
-    private void initTaskByParams( AsyncRedisParams params, AsyncRedisTask asyncTask) {
+    @Autowired
+    private TaskHistoryManager taskHistoryManager;
+
+    private void initTaskByParams(AsyncParams params, AsyncTask asyncTask) {
         long ttl = Constants.REDIS_TASK_DEFAULT_EXPIRE_TIME;
         if (params.getTtl() > Constants.REDIS_TASK_MAX_EXPIRE_TIME) {
             ttl = Constants.REDIS_TASK_MAX_EXPIRE_TIME;
@@ -39,7 +45,7 @@ public class RedisTaskProducer {
         asyncTask.setUserId(params.getUserId());
     }
 
-    public void initRedisTask(Class clazz, AsyncRedisParams params) {
+    public void initRedisTask(Class clazz, AsyncParams params) {
 
         Object instance;
         try {
@@ -51,16 +57,26 @@ public class RedisTaskProducer {
             LOGGER.error("IllegalAccessException " + e.getMessage());
             return;
         }
-        if (!(instance instanceof AsyncRedisTask)) {
+        if (!(instance instanceof AsyncTask)) {
             throw new WrongParamsException("task is invalid " + instance);
         }
 
-        AsyncRedisTask asyncTask = (AsyncRedisTask) instance;
+        AsyncTask asyncTask = (AsyncTask) instance;
         initTaskByParams(params, asyncTask);
+        TaskHistoryDo taskHistoryDo = new TaskHistoryDo();
+        taskHistoryDo.setTaskId(asyncTask.getTaskId());
+        taskHistoryDo.setStatus(TaskStatus.START);
+        try {
+            taskHistoryManager.save(taskHistoryDo);
+        } catch (Exception exception) {
+            LOGGER.error("save task {} failed.", taskHistoryDo);
+            return;
+        }
+
         redissonUtils.publishMessageToTopic(Constants.ASYNC_TASK_REDIS_TOPIC_NAME, asyncTask);
     }
 
-    public void returnMessageToTopic(AsyncRedisTask asyncTask, AsyncRedisParams params) {
+    public void returnMessageToRedisTopic(AsyncTask asyncTask, AsyncParams params) {
         if (params.getStep() > 100 || params.getStep() < 0) {
             LOGGER.error("task {} step is larger than 100 or lower than 0, stop the task.", asyncTask);
             return;

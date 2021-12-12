@@ -1,7 +1,7 @@
 package com.yqc.asynctasks.utils;
 
 import com.yqc.asynctasks.constants.Constants;
-import com.yqc.asynctasks.tasks.AsyncRedisTask;
+import com.yqc.asynctasks.tasks.AsyncTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +20,12 @@ public class RedisTaskConsumer {
     private RedissonUtils redissonUtils;
 
     @Autowired
-    private AsyncRedisTask asyncRedisTask;
+    private AsyncTask asyncTask;
 
-    private Boolean checkTaskValidation(AsyncRedisTask asyncRedisTask) {
-        long startTime = asyncRedisTask.getCreateTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        if (System.currentTimeMillis() > startTime + asyncRedisTask.getTtl()) {
-            LOGGER.info("task {} is expired." + asyncRedisTask);
+    private Boolean checkTaskValidation(AsyncTask asyncTask) {
+        long startTime = asyncTask.getCreateTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        if (System.currentTimeMillis() > startTime + asyncTask.getTtl()) {
+            LOGGER.info("task {} is expired." + asyncTask);
             return Boolean.FALSE;
         }
         return Boolean.TRUE;
@@ -33,18 +33,17 @@ public class RedisTaskConsumer {
 
     public void consumerRedisTopic() {
         Function function = o -> {
-            if (o instanceof AsyncRedisTask) {
-                AsyncRedisTask task = (AsyncRedisTask) o;
+            if (o instanceof AsyncTask) {
+                AsyncTask task = (AsyncTask) o;
                 if (!checkTaskValidation(task)) {
                     return null;
                 }
-                ;
-                asyncRedisTask.run(task.getParams());
+                asyncTask.run(task.getParams());
             } else {
                 LOGGER.error("task {} is not a AsyncRedisTask", o);
             }
             return null;
         };
-        redissonUtils.consumerMessageFromTopic(Constants.ASYNC_TASK_REDIS_TOPIC_NAME, AsyncRedisTask.class, function);
+        redissonUtils.consumerMessageFromTopic(Constants.ASYNC_TASK_REDIS_TOPIC_NAME, AsyncTask.class, function);
     }
 }

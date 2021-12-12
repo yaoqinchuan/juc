@@ -2,9 +2,11 @@ package com.yqc.asynctasks.enums;
 
 public enum ErrorCodeEnum {
 
+    SuccessCode("W100.0", "success"),
+
     WrongParamsErrorCode("W100.1", "wrong parameters, please check!"),
 
-    EntityNotFoundErrorCode("W100.1", "wrong parameters, please check!");
+    EntityNotFoundErrorCode("W100.2", "entity is not found, please check!");
 
     private final String errorCode;
 

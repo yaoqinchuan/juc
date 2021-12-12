@@ -1,13 +1,14 @@
 package com.yqc.asynctasks.tasks;
 
-import com.yqc.asynctasks.params.AsyncRedisParams;
+import com.yqc.asynctasks.entity.TaskHistoryDo;
+import com.yqc.asynctasks.params.AsyncParams;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Component
-public abstract class AsyncRedisTask<T extends AsyncRedisParams> implements Serializable {
+public abstract class AsyncTask<T extends AsyncParams> implements Serializable {
 
     protected Integer step;
 
@@ -24,6 +25,8 @@ public abstract class AsyncRedisTask<T extends AsyncRedisParams> implements Seri
     private T params;
 
     private String taskId;
+
+    private TaskHistoryDo taskHistoryDo;
 
     public abstract void run(T asyncRedisParams);
 
@@ -95,9 +98,17 @@ public abstract class AsyncRedisTask<T extends AsyncRedisParams> implements Seri
         this.step = step;
     }
 
+    public TaskHistoryDo getTaskHistoryDo() {
+        return taskHistoryDo;
+    }
+
+    public void setTaskHistoryDo(TaskHistoryDo taskHistoryDo) {
+        this.taskHistoryDo = taskHistoryDo;
+    }
+
     @Override
     public String toString() {
-        return "AsyncRedisTask{" +
+        return "AsyncTask{" +
                 "step=" + step +
                 ", ttl=" + ttl +
                 ", version=" + version +
@@ -106,6 +117,7 @@ public abstract class AsyncRedisTask<T extends AsyncRedisParams> implements Seri
                 ", groupId='" + groupId + '\'' +
                 ", params=" + params +
                 ", taskId='" + taskId + '\'' +
+                ", taskHistoryDo=" + taskHistoryDo +
                 '}';
     }
 }

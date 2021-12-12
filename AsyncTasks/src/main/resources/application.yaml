@@ -1,6 +1,16 @@
 spring:
   application:
     name: asyncTask
+  datasource:
+    hikari:
+      username:
+      password:
+      driver-class-name:
+      jdbc-url:
+  jpa:
+    hibernate:
+      ddl-auto: update
+
 server:
   port: 8081
 

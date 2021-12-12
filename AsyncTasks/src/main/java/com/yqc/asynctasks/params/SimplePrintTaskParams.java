@@ -1,6 +1,6 @@
 package com.yqc.asynctasks.params;
 
-public class SimplePrintTaskParams extends AsyncRedisParams {
+public class SimplePrintTaskParams extends AsyncParams {
 
     private String printMessage;
 

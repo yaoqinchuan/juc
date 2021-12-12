@@ -1,8 +1,10 @@
 package com.yqc.asynctasks.params;
 
+import com.yqc.asynctasks.enums.TaskTech;
+
 import java.io.Serializable;
 
-public class AsyncRedisParams implements Serializable {
+public class AsyncParams implements Serializable {
 
     private long ttl;
 
@@ -13,6 +15,9 @@ public class AsyncRedisParams implements Serializable {
     private String userId;
 
     private Integer step;
+
+    // 使用哪种异步队列,默认使用topic
+    private TaskTech taskTech = TaskTech.REDIS_TOPIC;
 
     public long getTtl() {
         return ttl;
@@ -54,14 +59,23 @@ public class AsyncRedisParams implements Serializable {
         this.step = step;
     }
 
+    public TaskTech getTaskTech() {
+        return taskTech;
+    }
+
+    public void setTaskTech(TaskTech taskTech) {
+        this.taskTech = taskTech;
+    }
+
     @Override
     public String toString() {
-        return "AsyncRedisParams{" +
+        return "AsyncParams{" +
                 "ttl=" + ttl +
                 ", version=" + version +
                 ", groupId='" + groupId + '\'' +
                 ", userId='" + userId + '\'' +
                 ", step=" + step +
+                ", taskTech=" + taskTech +
                 '}';
     }
 }
