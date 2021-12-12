@@ -3,6 +3,7 @@ package com.yqc.asynctasks.utils;
 import com.yqc.asynctasks.constants.Constants;
 import com.yqc.asynctasks.dao.TaskHistoryDao;
 import com.yqc.asynctasks.entity.TaskHistoryDo;
+import com.yqc.asynctasks.enums.ErrorCodeEnum;
 import com.yqc.asynctasks.enums.TaskStatus;
 import com.yqc.asynctasks.exceptions.WrongParamsException;
 import com.yqc.asynctasks.manager.TaskHistoryManager;
@@ -79,6 +80,11 @@ public class RedisTaskProducer {
     public void returnMessageToRedisTopic(AsyncTask asyncTask, AsyncParams params) {
         if (params.getStep() > 100 || params.getStep() < 0) {
             LOGGER.error("task {} step is larger than 100 or lower than 0, stop the task.", asyncTask);
+            TaskHistoryDo taskHistoryDo = asyncTask.getTaskHistoryDo();
+            taskHistoryDo.setStatus(TaskStatus.FAILED);
+            taskHistoryDo.setErrorCode(ErrorCodeEnum.TaskOverTimeErrorCode.getErrorCode());
+            taskHistoryDo.setErrorMessage(ErrorCodeEnum.TaskOverTimeErrorCode.getErrorMessage());
+            taskHistoryManager.save(taskHistoryDo);
             return;
         }
         asyncTask.setStep(params.getStep());

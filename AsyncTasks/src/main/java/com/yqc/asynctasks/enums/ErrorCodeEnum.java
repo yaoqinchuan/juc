@@ -6,7 +6,9 @@ public enum ErrorCodeEnum {
 
     WrongParamsErrorCode("W100.1", "wrong parameters, please check!"),
 
-    EntityNotFoundErrorCode("W100.2", "entity is not found, please check!");
+    EntityNotFoundErrorCode("W100.2", "entity is not found, please check!"),
+
+    TaskOverTimeErrorCode("W100.3", "task is overtime, please check!");
 
     private final String errorCode;
 

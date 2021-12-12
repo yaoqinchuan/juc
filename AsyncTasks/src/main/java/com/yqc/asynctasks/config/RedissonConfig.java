@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RedissonConfig {
 
-    @Value(value = "thirdPart.redis.endPoint")
+    @Value(value = "third-part.redis.end-point")
     private String redisEndPoint;
 
     @Bean(destroyMethod = "shutdown")

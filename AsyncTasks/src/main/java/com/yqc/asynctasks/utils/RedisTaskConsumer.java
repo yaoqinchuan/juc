@@ -1,6 +1,10 @@
 package com.yqc.asynctasks.utils;
 
 import com.yqc.asynctasks.constants.Constants;
+import com.yqc.asynctasks.entity.TaskHistoryDo;
+import com.yqc.asynctasks.enums.ErrorCodeEnum;
+import com.yqc.asynctasks.enums.TaskStatus;
+import com.yqc.asynctasks.manager.TaskHistoryManager;
 import com.yqc.asynctasks.tasks.AsyncTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +26,18 @@ public class RedisTaskConsumer {
     @Autowired
     private AsyncTask asyncTask;
 
+    @Autowired
+    private TaskHistoryManager taskHistoryManager;
+
     private Boolean checkTaskValidation(AsyncTask asyncTask) {
         long startTime = asyncTask.getCreateTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        TaskHistoryDo taskHistoryDo = asyncTask.getTaskHistoryDo();
         if (System.currentTimeMillis() > startTime + asyncTask.getTtl()) {
             LOGGER.info("task {} is expired." + asyncTask);
+            taskHistoryDo.setStatus(TaskStatus.FAILED);
+            taskHistoryDo.setErrorCode(ErrorCodeEnum.TaskOverTimeErrorCode.getErrorCode());
+            taskHistoryDo.setErrorMessage(ErrorCodeEnum.TaskOverTimeErrorCode.getErrorMessage());
+            taskHistoryManager.save(taskHistoryDo);
             return Boolean.FALSE;
         }
         return Boolean.TRUE;

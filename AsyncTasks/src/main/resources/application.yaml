@@ -2,18 +2,18 @@ spring:
   application:
     name: asyncTask
   datasource:
-    hikari:
-      username:
-      password:
-      driver-class-name:
-      jdbc-url:
+    url: jdbc:mysql://localhost:3306/yqc?useUnicode=true&characterEncoding=utf-8
+    username: "root"
+    password: "root"
+    driver-class-name: com.mysql.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
+    show-sql: true
 
 server:
   port: 8081
 
-thirdPart:
+third-part:
   redis:
-    endPoint: 127.0.0.1:6379
+    end-point: 127.0.0.1:6379
